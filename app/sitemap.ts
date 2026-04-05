@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllSubsidies } from "@/lib/subsidies";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://my-subsidy.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://my-subsidy-beta.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const subsidies = getAllSubsidies();
