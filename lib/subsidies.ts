@@ -245,6 +245,169 @@ const subsidies: Subsidy[] = [
     endDate: "2026-05-31",
     contactPhone: "1544-8080",
   },
+
+  // ── 개인 대상 지원금 ──
+
+  {
+    id: "youth-rent-2026",
+    title: "2026년 청년 월세 한시 특별지원",
+    organization: "국토교통부",
+    source: "gov.kr",
+    sourceUrl: "https://www.gov.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: ["청년"],
+    },
+    supportAmount: "월 최대 20만원 (12개월)",
+    supportType: "보조금",
+    supportDetails: "만 19~34세 무주택 청년, 중위소득 60% 이하 대상. 월세 최대 20만원 지원 (최대 12개월)",
+    startDate: "2026-01-02",
+    endDate: "2026-12-31",
+    contactPhone: "1600-0777",
+  },
+  {
+    id: "youth-savings-2026",
+    title: "2026년 청년내일저축계좌",
+    organization: "보건복지부",
+    source: "gov.kr",
+    sourceUrl: "https://www.gov.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: ["청년"],
+    },
+    supportAmount: "월 10만원 매칭 (3년)",
+    supportType: "보조금",
+    supportDetails: "만 19~34세 근로청년, 월 10만원 저축 시 정부가 월 10만원 매칭 (3년간 총 720만원+)",
+    startDate: "2026-05-01",
+    endDate: "2026-07-31",
+    contactPhone: "129",
+  },
+  {
+    id: "childbirth-2026",
+    title: "2026년 첫만남 이용권 (출산지원금)",
+    organization: "보건복지부",
+    source: "gov.kr",
+    sourceUrl: "https://www.gov.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "첫째 200만원, 둘째 이상 300만원",
+    supportType: "보조금",
+    supportDetails: "출생아 1인당 바우처 지급. 첫째 200만원, 둘째 이상 300만원. 출생일로부터 1년 이내 신청.",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
+    contactPhone: "129",
+  },
+  {
+    id: "parental-leave-2026",
+    title: "2026년 부모급여",
+    organization: "보건복지부",
+    source: "gov.kr",
+    sourceUrl: "https://www.gov.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "0세 월 100만원, 1세 월 50만원",
+    supportType: "보조금",
+    supportDetails: "만 0세(0~11개월) 월 100만원, 만 1세(12~23개월) 월 50만원 지급",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
+    contactPhone: "129",
+  },
+  {
+    id: "job-support-2026",
+    title: "2026년 국민취업지원제도",
+    organization: "고용노동부",
+    source: "gov.kr",
+    sourceUrl: "https://www.kua.go.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "월 50만원 (6개월)",
+    supportType: "보조금",
+    supportDetails: "구직촉진수당 월 50만원 × 6개월 + 취업성공수당 최대 150만원. 15~69세 구직자 대상.",
+    startDate: "2026-01-02",
+    endDate: "2026-12-31",
+    contactPhone: "1350",
+  },
+  {
+    id: "eitc-2026",
+    title: "2026년 근로장려금",
+    organization: "국세청",
+    source: "nts.go.kr",
+    sourceUrl: "https://www.nts.go.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "최대 330만원",
+    supportType: "보조금",
+    supportDetails: "저소득 근로자 가구. 단독가구 최대 165만원, 홑벌이 최대 285만원, 맞벌이 최대 330만원.",
+    startDate: "2026-05-01",
+    endDate: "2026-05-31",
+    contactPhone: "126",
+  },
+  {
+    id: "energy-voucher-2026",
+    title: "2026년 에너지 바우처",
+    organization: "산업통상자원부",
+    source: "gov.kr",
+    sourceUrl: "https://www.energyv.or.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "가구당 최대 18만원",
+    supportType: "보조금",
+    supportDetails: "기초생활수급자·차상위계층 대상 전기/가스/난방 에너지 바우처 지원",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
+    contactPhone: "1600-3190",
+  },
+  {
+    id: "digital-education-2026",
+    title: "2026년 국민내일배움카드",
+    organization: "고용노동부",
+    source: "hrd.go.kr",
+    sourceUrl: "https://www.hrd.go.kr",
+    eligibility: {
+      businessTypes: ["개인"],
+      industries: [],
+      regions: ["전국"],
+      businessAge: { min: 0, max: 100 },
+      specialConditions: [],
+    },
+    supportAmount: "최대 500만원 (5년)",
+    supportType: "교육",
+    supportDetails: "국민 누구나 직업훈련비 300~500만원 지원. IT, 디자인, 요리, 자격증 등 다양한 과정.",
+    startDate: "2026-01-02",
+    endDate: "2026-12-31",
+    contactPhone: "1350",
+  },
 ];
 
 // ─── 유틸 함수 ───────────────────────────────────────────────
@@ -296,12 +459,16 @@ export function calculateMatch(profile: UserProfile, subsidy: Subsidy): MatchRes
   score += 30;
   reasons.push(`사업자 유형 일치 (${profile.businessType})`);
 
-  // 2. 업종 (필수)
-  if (e.industries.length > 0 && !e.industries.includes(profile.industry)) {
+  // 2. 업종 (필수, 개인은 스킵)
+  if (profile.businessType !== "개인" && e.industries.length > 0 && !e.industries.includes(profile.industry)) {
     return { subsidy, score: 0, reasons: ["업종 불일치"] };
   }
   score += 20;
-  reasons.push(`업종 일치 (${profile.industry})`);
+  if (profile.businessType === "개인") {
+    reasons.push("개인 대상 (업종 무관)");
+  } else {
+    reasons.push(`업종 일치 (${profile.industry})`);
+  }
 
   // 3. 지역 (필수)
   if (!e.regions.includes("전국") && !e.regions.includes(profile.region)) {
@@ -310,12 +477,14 @@ export function calculateMatch(profile: UserProfile, subsidy: Subsidy): MatchRes
   score += 15;
   reasons.push(e.regions.includes("전국") ? "전국 대상" : `지역 일치 (${profile.region})`);
 
-  // 4. 업력 (필수)
-  if (
-    (e.businessAge.min !== undefined && profile.businessAge < e.businessAge.min) ||
-    (e.businessAge.max !== undefined && profile.businessAge > e.businessAge.max)
-  ) {
-    return { subsidy, score: 0, reasons: ["업력 조건 불일치"] };
+  // 4. 업력 (필수, 개인은 스킵)
+  if (profile.businessType !== "개인") {
+    if (
+      (e.businessAge.min !== undefined && profile.businessAge < e.businessAge.min) ||
+      (e.businessAge.max !== undefined && profile.businessAge > e.businessAge.max)
+    ) {
+      return { subsidy, score: 0, reasons: ["업력 조건 불일치"] };
+    }
   }
   score += 15;
   reasons.push("업력 조건 충족");
@@ -368,6 +537,6 @@ export function searchSubsidies(query: string): Subsidy[] {
 
 // ─── 상수 ────────────────────────────────────────────────────
 
-export const BUSINESS_TYPES = ["소상공인", "중소기업", "스타트업", "예비창업자"];
+export const BUSINESS_TYPES = ["개인", "소상공인", "중소기업", "스타트업", "예비창업자"];
 export const INDUSTRIES = ["음식점", "소매업", "서비스업", "제조업", "IT", "콘텐츠", "바이오", "도매업", "교육"];
 export const REGIONS = ["서울", "경기", "인천", "부산", "대구", "대전", "광주", "울산", "세종", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
