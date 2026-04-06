@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAllSubsidies, getSubsidyById, getDday } from "@/lib/subsidies";
-import { ArrowLeft, Building2, Calendar, Banknote, Phone, ExternalLink } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, Banknote, Phone, ExternalLink, Search } from "lucide-react";
 
 export function generateStaticParams() {
   return getAllSubsidies().map((s) => ({ id: s.id }));
@@ -138,24 +138,35 @@ export default async function SubsidyDetailPage({
       </section>
 
       {/* 문의 + 원본 링크 */}
-      <div className="flex gap-2">
-        {s.contactPhone && (
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          {s.contactPhone && (
+            <a
+              href={`tel:${s.contactPhone}`}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] hover:border-[#2563EB] transition-colors"
+            >
+              <Phone size={16} />
+              {s.contactPhone}
+            </a>
+          )}
           <a
-            href={`tel:${s.contactPhone}`}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] hover:border-[#2563EB] transition-colors"
-          >
-            <Phone size={16} />
-            {s.contactPhone}
-          </a>
-        )}
+            href={`https://search.naver.com/search.naver?query=${encodeURIComponent(s.title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#2563EB] text-white rounded-xl text-sm font-medium hover:bg-[#1D4ED8] transition-colors"
+        >
+          <Search size={16} />
+          공고 검색 (네이버)
+        </a>
+        </div>
         <a
           href={s.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#2563EB] text-white rounded-xl text-sm font-medium hover:bg-[#1D4ED8] transition-colors"
+          className="flex items-center justify-center gap-2 py-3 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#64748B] hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
         >
           <ExternalLink size={16} />
-          원본 공고 보기
+          {s.organization} 홈페이지
         </a>
       </div>
     </div>
