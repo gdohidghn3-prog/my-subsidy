@@ -8,7 +8,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 소상공인 디지털전환 지원사업",
     organization: "소상공인시장진흥공단",
     source: "semas.or.kr",
-    sourceUrl: "https://www.semas.or.kr",
+    sourceUrl: "https://www.semas.or.kr/web/board/webBoardList.kmdc?bCd=1030",
     eligibility: {
       businessTypes: ["소상공인"],
       industries: ["음식점", "소매업", "서비스업", "제조업"],
@@ -28,7 +28,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 창업도약패키지",
     organization: "창업진흥원",
     source: "k-startup.go.kr",
-    sourceUrl: "https://www.k-startup.go.kr",
+    sourceUrl: "https://www.k-startup.go.kr/homepage/businessManage/businessList.do",
     eligibility: {
       businessTypes: ["스타트업", "중소기업"],
       industries: ["IT", "제조업", "서비스업", "바이오"],
@@ -48,7 +48,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 청년창업사관학교",
     organization: "중소벤처기업부",
     source: "k-startup.go.kr",
-    sourceUrl: "https://www.k-startup.go.kr",
+    sourceUrl: "https://www.k-startup.go.kr/homepage/businessManage/businessList.do",
     eligibility: {
       businessTypes: ["예비창업자", "스타트업"],
       industries: ["IT", "제조업", "서비스업", "콘텐츠"],
@@ -129,7 +129,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 여성기업 성장지원사업",
     organization: "여성기업종합지원센터",
     source: "bizinfo.go.kr",
-    sourceUrl: "https://www.bizinfo.go.kr",
+    sourceUrl: "https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/list.do",
     eligibility: {
       businessTypes: ["소상공인", "중소기업", "스타트업"],
       industries: ["IT", "제조업", "서비스업", "소매업"],
@@ -170,7 +170,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 예비창업패키지",
     organization: "창업진흥원",
     source: "k-startup.go.kr",
-    sourceUrl: "https://www.k-startup.go.kr",
+    sourceUrl: "https://www.k-startup.go.kr/homepage/businessManage/businessList.do",
     eligibility: {
       businessTypes: ["예비창업자"],
       industries: ["IT", "제조업", "서비스업", "콘텐츠", "바이오"],
@@ -253,7 +253,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 청년 월세 한시 특별지원",
     organization: "국토교통부",
     source: "gov.kr",
-    sourceUrl: "https://www.gov.kr",
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/main",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -273,7 +273,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 청년내일저축계좌",
     organization: "보건복지부",
     source: "gov.kr",
-    sourceUrl: "https://www.gov.kr",
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/main",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -293,7 +293,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 첫만남 이용권 (출산지원금)",
     organization: "보건복지부",
     source: "gov.kr",
-    sourceUrl: "https://www.gov.kr",
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/main",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -313,7 +313,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 부모급여",
     organization: "보건복지부",
     source: "gov.kr",
-    sourceUrl: "https://www.gov.kr",
+    sourceUrl: "https://www.gov.kr/portal/rcvfvrSvc/main",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -333,7 +333,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 국민취업지원제도",
     organization: "고용노동부",
     source: "gov.kr",
-    sourceUrl: "https://www.kua.go.kr",
+    sourceUrl: "https://www.kua.go.kr/uapaa010/selectMain.do",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -353,7 +353,7 @@ const subsidies: Subsidy[] = [
     title: "2026년 근로장려금",
     organization: "국세청",
     source: "nts.go.kr",
-    sourceUrl: "https://www.nts.go.kr",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2452&cntntsId=7783",
     eligibility: {
       businessTypes: ["개인"],
       industries: [],
@@ -502,12 +502,15 @@ export function calculateMatch(profile: UserProfile, subsidy: Subsidy): MatchRes
     score += 5;
   }
 
-  // 6. 특수 조건 (가점)
+  // 6. 특수 조건 (가점 — 없어도 매칭, 있으면 점수 높음)
   if (e.specialConditions.length > 0) {
     const matched = e.specialConditions.filter((c) => profile.specialTags.includes(c));
     if (matched.length > 0) {
-      score += 10;
+      score += 15;
       reasons.push(`특수 조건 일치 (${matched.join(", ")})`);
+    } else {
+      // 특수조건이 있지만 해당 안 됨 — 그래도 매칭은 됨 (가점만 없음)
+      reasons.push(`참고: ${e.specialConditions.join(", ")} 대상 우대`);
     }
   } else {
     score += 5;

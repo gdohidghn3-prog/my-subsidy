@@ -125,23 +125,32 @@ export default function LandingPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 gap-3 mb-8"
+        className="grid grid-cols-2 gap-3 mb-4"
       >
-        <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 text-center">
+        <Link
+          href="/search"
+          className="bg-white border border-[#E2E8F0] rounded-xl p-4 text-center hover:border-[#2563EB] transition-colors block"
+        >
           <div className="flex items-center justify-center gap-1 text-[#2563EB] mb-1">
             <TrendingUp size={16} />
           </div>
           <p className="text-2xl font-bold text-[#0F172A]">{activeCount}건</p>
           <p className="text-xs text-[#64748B]">신청 가능한 지원금</p>
-        </div>
-        <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 text-center">
+        </Link>
+        <Link
+          href="/deadline"
+          className="bg-white border border-[#E2E8F0] rounded-xl p-4 text-center hover:border-[#EF4444] transition-colors block"
+        >
           <div className="flex items-center justify-center gap-1 text-[#EF4444] mb-1">
             <Clock size={16} />
           </div>
           <p className="text-2xl font-bold text-[#0F172A]">{deadlineSubsidies.length}건</p>
           <p className="text-xs text-[#64748B]">이번 주 마감</p>
-        </div>
+        </Link>
       </motion.div>
+      <p className="text-[11px] text-[#94A3B8] mb-8 text-center">
+        현재 접수 기간 내 지원금 기준 · 매일 업데이트
+      </p>
 
       {/* 마감 임박 TOP */}
       {deadlineSubsidies.length > 0 && (
