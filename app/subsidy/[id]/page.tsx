@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getAllSubsidies, getSubsidyById, getDday } from "@/lib/subsidies";
+import { getAllSubsidies, getSubsidyByIdAsync, getDday } from "@/lib/subsidies";
 import { ArrowLeft, Building2, Calendar, Banknote, Phone, ExternalLink, Search } from "lucide-react";
 
 export function generateStaticParams() {
@@ -14,7 +14,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const s = getSubsidyById(id);
+  const s = await getSubsidyByIdAsync(id);
   if (!s) return { title: "지원금을 찾을 수 없습니다" };
 
   return {
@@ -29,7 +29,7 @@ export default async function SubsidyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const s = getSubsidyById(id);
+  const s = await getSubsidyByIdAsync(id);
   if (!s) notFound();
 
   const dday = getDday(s.endDate);

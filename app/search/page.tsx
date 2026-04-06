@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
-import { getMatchedSubsidies, getActiveSubsidies, searchSubsidies } from "@/lib/subsidies";
-import type { UserProfile, MatchResult } from "@/types/subsidy";
+import { getMatchedSubsidies, getActiveSubsidies, searchSubsidies, calculateMatch } from "@/lib/subsidies";
+import type { Subsidy, UserProfile, MatchResult } from "@/types/subsidy";
 import SubsidyCard from "@/components/SubsidyCard";
 
 export default function SearchPageWrapper() {
@@ -34,13 +34,28 @@ function SearchPage() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"match" | "deadline">("match");
   const [typeFilter, setTypeFilter] = useState<Set<string>>(new Set());
+  const [allSubsidies, setAllSubsidies] = useState<Subsidy[]>([]);
+
+  useEffect(() => {
+    fetch("/api/subsidies?filter=active")
+      .then((r) => r.json())
+      .then((data) => { if (data.subsidies?.length) setAllSubsidies(data.subsidies); })
+      .catch(() => {});
+  }, []);
 
   const isPersonal = businessType === "개인";
   const hasProfile = businessType && (isPersonal || industry) && region;
 
+  // 크롤링 데이터가 있으면 사용, 없으면 정적 데이터 폴백
+  const dataReady = allSubsidies.length > 0;
+
   const results = useMemo(() => {
     if (query.trim()) {
-      return searchSubsidies(query).map((s) => ({ subsidy: s, score: 0, reasons: [] as string[] }));
+      const q = query.toLowerCase();
+      const source = dataReady ? allSubsidies : getActiveSubsidies();
+      return source
+        .filter((s) => s.title.toLowerCase().includes(q) || s.organization.toLowerCase().includes(q) || s.supportDetails.toLowerCase().includes(q))
+        .map((s) => ({ subsidy: s, score: 0, reasons: [] as string[] }));
     }
 
     if (hasProfile) {
@@ -52,11 +67,20 @@ function SearchPage() {
         employeeCount: 3,
         specialTags: isPersonal ? ["청년"] : [],
       };
+      if (dataReady) {
+        const today = new Date().toISOString().slice(0, 10);
+        return allSubsidies
+          .filter((s) => s.startDate <= today && s.endDate >= today)
+          .map((s) => calculateMatch(profile, s))
+          .filter((r) => r.score > 0)
+          .sort((a, b) => b.score - a.score);
+      }
       return getMatchedSubsidies(profile);
     }
 
-    return getActiveSubsidies().map((s) => ({ subsidy: s, score: 0, reasons: [] as string[] }));
-  }, [businessType, industry, region, hasProfile, isPersonal, query]);
+    const source = dataReady ? allSubsidies : getActiveSubsidies();
+    return source.map((s) => ({ subsidy: s, score: 0, reasons: [] as string[] }));
+  }, [businessType, industry, region, hasProfile, isPersonal, query, allSubsidies, dataReady]);
 
   const sorted = useMemo(() => {
     const items = [...results];

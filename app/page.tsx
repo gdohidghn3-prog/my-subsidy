@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search, Clock, TrendingUp } from "lucide-react";
 import { BUSINESS_TYPES, INDUSTRIES, REGIONS, getActiveSubsidies, getDeadlineSubsidies } from "@/lib/subsidies";
+import type { Subsidy } from "@/types/subsidy";
 import SubsidyCard from "@/components/SubsidyCard";
 
 export default function LandingPage() {
@@ -14,8 +15,20 @@ export default function LandingPage() {
   const [industry, setIndustry] = useState("");
   const [region, setRegion] = useState("");
 
-  const activeCount = getActiveSubsidies().length;
-  const deadlineSubsidies = getDeadlineSubsidies(7);
+  const [activeCount, setActiveCount] = useState(() => getActiveSubsidies().length);
+  const [deadlineSubsidies, setDeadlineSubsidies] = useState<Subsidy[]>(() => getDeadlineSubsidies(7));
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/subsidies?filter=active").then((r) => r.json()),
+      fetch("/api/subsidies?filter=deadline&days=7").then((r) => r.json()),
+    ])
+      .then(([active, deadline]) => {
+        if (active.count != null) setActiveCount(active.count);
+        if (deadline.subsidies?.length) setDeadlineSubsidies(deadline.subsidies);
+      })
+      .catch(() => {});
+  }, []);
 
   const isPersonal = businessType === "개인";
   const canSubmit = businessType && (isPersonal || industry) && region;

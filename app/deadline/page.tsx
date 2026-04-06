@@ -1,13 +1,21 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getDeadlineSubsidies } from "@/lib/subsidies";
+import type { Subsidy } from "@/types/subsidy";
 import SubsidyCard from "@/components/SubsidyCard";
 
 export default function DeadlinePage() {
-  const deadlines = useMemo(() => getDeadlineSubsidies(30), []);
+  const [deadlines, setDeadlines] = useState<Subsidy[]>(() => getDeadlineSubsidies(30));
+
+  useEffect(() => {
+    fetch("/api/subsidies?filter=deadline&days=30")
+      .then((r) => r.json())
+      .then((data) => { if (data.subsidies?.length) setDeadlines(data.subsidies); })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto px-4 pb-16">

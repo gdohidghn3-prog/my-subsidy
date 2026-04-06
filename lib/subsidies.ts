@@ -1,8 +1,9 @@
 import type { Subsidy, UserProfile, MatchResult } from "@/types/subsidy";
+import { crawlAllSubsidies } from "./crawlers";
 
 // ─── 샘플 데이터 (실제 존재하는 지원사업 기반) ────────────────
 
-const subsidies: Subsidy[] = [
+const staticSubsidies: Subsidy[] = [
   {
     id: "semas-digital-2026",
     title: "2026년 소상공인 디지털전환 지원사업",
@@ -431,19 +432,88 @@ const subsidies: Subsidy[] = [
   { id: "smart-store-2026", title: "2026년 소상공인 스마트상점 지원", organization: "소상공인시장진흥공단", source: "semas.or.kr", sourceUrl: "https://www.semas.or.kr/web/board/webBoardList.kmdc?bCd=1030", eligibility: { businessTypes: ["소상공인"], industries: ["음식점", "소매업", "서비스업"], regions: ["전국"], businessAge: { min: 0, max: 100 }, specialConditions: [] }, supportAmount: "최대 2,000만원", supportType: "보조금", supportDetails: "스마트 기술(무인결제, IoT 등) 도입 소상공인 대상 시설비 지원.", startDate: "2026-04-01", endDate: "2026-06-30", contactPhone: "1357" },
 ];
 
-// ─── 유틸 함수 ───────────────────────────────────────────────
+// ─── 크롤링 캐시 (6시간 TTL) ────────────────────────────────
+
+let cachedCrawled: Subsidy[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 6 * 60 * 60 * 1000;
+
+async function getCrawledSubsidies(): Promise<Subsidy[]> {
+  const now = Date.now();
+  if (cachedCrawled && now - cacheTimestamp < CACHE_TTL) {
+    const age = Math.round((now - cacheTimestamp) / 1000);
+    console.log(`[Cache HIT] 지원금 ${cachedCrawled.length}건 (${age}초 전 캐시)`);
+    return cachedCrawled;
+  }
+  console.log("[Cache MISS] 지원금 크롤링 시작");
+  try {
+    cachedCrawled = await crawlAllSubsidies();
+    cacheTimestamp = now;
+    console.log(`[Cache SET] 지원금 ${cachedCrawled.length}건 저장`);
+  } catch (e) {
+    console.error("[Cache ERROR] 지원금 크롤링 실패:", e);
+    if (!cachedCrawled) cachedCrawled = [];
+  }
+  return cachedCrawled;
+}
+
+// ─── Async API (크롤링 데이터 포함) ─────────────────────────
+
+export async function getAllSubsidiesAsync(): Promise<Subsidy[]> {
+  const crawled = await getCrawledSubsidies();
+  // 크롤링 데이터 우선, 정적 데이터는 ID 중복 제거 후 보충
+  const crawledIds = new Set(crawled.map((s) => s.id));
+  const unique = staticSubsidies.filter((s) => !crawledIds.has(s.id));
+  return [...crawled, ...unique];
+}
+
+export async function getActiveSubsidiesAsync(): Promise<Subsidy[]> {
+  const all = await getAllSubsidiesAsync();
+  const today = new Date().toISOString().slice(0, 10);
+  return all.filter((s) => s.startDate <= today && s.endDate >= today);
+}
+
+export async function getDeadlineSubsidiesAsync(days: number = 30): Promise<Subsidy[]> {
+  const all = await getAllSubsidiesAsync();
+  const today = new Date();
+  const limit = new Date(today.getTime() + days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const todayStr = today.toISOString().slice(0, 10);
+  return all
+    .filter((s) => s.endDate >= todayStr && s.endDate <= limit)
+    .sort((a, b) => a.endDate.localeCompare(b.endDate));
+}
+
+export async function searchSubsidiesAsync(query: string): Promise<Subsidy[]> {
+  const all = await getAllSubsidiesAsync();
+  const q = query.toLowerCase();
+  return all.filter(
+    (s) =>
+      s.title.toLowerCase().includes(q) ||
+      s.organization.toLowerCase().includes(q) ||
+      s.supportDetails.toLowerCase().includes(q),
+  );
+}
+
+// ─── 동기 API (정적 데이터만, 하위 호환) ────────────────────
 
 export function getAllSubsidies(): Subsidy[] {
-  return subsidies;
+  return staticSubsidies;
 }
 
 export function getSubsidyById(id: string): Subsidy | undefined {
-  return subsidies.find((s) => s.id === id);
+  return staticSubsidies.find((s) => s.id === id);
+}
+
+export async function getSubsidyByIdAsync(id: string): Promise<Subsidy | undefined> {
+  const all = await getAllSubsidiesAsync();
+  return all.find((s) => s.id === id);
 }
 
 export function getActiveSubsidies(): Subsidy[] {
   const today = new Date().toISOString().slice(0, 10);
-  return subsidies.filter((s) => s.startDate <= today && s.endDate >= today);
+  return staticSubsidies.filter((s) => s.startDate <= today && s.endDate >= today);
 }
 
 export function getDeadlineSubsidies(days: number = 7): Subsidy[] {
@@ -453,7 +523,7 @@ export function getDeadlineSubsidies(days: number = 7): Subsidy[] {
     .slice(0, 10);
   const todayStr = today.toISOString().slice(0, 10);
 
-  return subsidies
+  return staticSubsidies
     .filter((s) => s.endDate >= todayStr && s.endDate <= limit)
     .sort((a, b) => a.endDate.localeCompare(b.endDate));
 }
@@ -551,7 +621,7 @@ export function getMatchedSubsidies(profile: UserProfile): MatchResult[] {
 
 export function searchSubsidies(query: string): Subsidy[] {
   const q = query.toLowerCase();
-  return subsidies.filter(
+  return staticSubsidies.filter(
     (s) =>
       s.title.toLowerCase().includes(q) ||
       s.organization.toLowerCase().includes(q) ||
