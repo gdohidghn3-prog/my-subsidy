@@ -17,10 +17,14 @@ export default function LandingPage() {
   const activeCount = getActiveSubsidies().length;
   const deadlineSubsidies = getDeadlineSubsidies(7);
 
+  const isPersonal = businessType === "개인";
+  const canSubmit = businessType && (isPersonal || industry) && region;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!businessType || !industry || !region) return;
-    const params = new URLSearchParams({ businessType, industry, region });
+    if (!canSubmit) return;
+    const params = new URLSearchParams({ businessType, region });
+    if (!isPersonal && industry) params.set("industry", industry);
     router.push(`/search?${params}`);
   };
 
@@ -49,7 +53,7 @@ export default function LandingPage() {
           내가 받을 수 있는<br />정부 지원금, 지금 확인하세요
         </h2>
         <p className="text-sm text-[#64748B]">
-          3가지만 선택하면 맞춤 지원금을 찾아드립니다.
+          개인·사업자 모두 가능! 간단한 선택으로 맞춤 지원금을 찾아드립니다.
         </p>
       </motion.section>
 
@@ -62,10 +66,10 @@ export default function LandingPage() {
         className="bg-white border border-[#E2E8F0] rounded-2xl p-5 mb-8 space-y-4"
       >
         <div>
-          <label className="text-sm font-medium text-[#0F172A] mb-1.5 block">사업자 유형</label>
+          <label className="text-sm font-medium text-[#0F172A] mb-1.5 block">대상 유형</label>
           <select
             value={businessType}
-            onChange={(e) => setBusinessType(e.target.value)}
+            onChange={(e) => { setBusinessType(e.target.value); if (e.target.value === "개인") setIndustry(""); }}
             className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
           >
             <option value="">선택하세요</option>
@@ -75,19 +79,21 @@ export default function LandingPage() {
           </select>
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-[#0F172A] mb-1.5 block">업종</label>
-          <select
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-            className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
-          >
-            <option value="">선택하세요</option>
-            {INDUSTRIES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+        {!isPersonal && (
+          <div>
+            <label className="text-sm font-medium text-[#0F172A] mb-1.5 block">업종</label>
+            <select
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+            >
+              <option value="">선택하세요</option>
+              {INDUSTRIES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="text-sm font-medium text-[#0F172A] mb-1.5 block">지역</label>
@@ -97,6 +103,7 @@ export default function LandingPage() {
             className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
           >
             <option value="">선택하세요</option>
+            <option value="전국">전국 (공통)</option>
             {REGIONS.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -105,7 +112,7 @@ export default function LandingPage() {
 
         <button
           type="submit"
-          disabled={!businessType || !industry || !region}
+          disabled={!canSubmit}
           className="w-full py-3.5 bg-[#2563EB] text-white font-medium rounded-xl disabled:opacity-40 hover:bg-[#1D4ED8] transition-colors flex items-center justify-center gap-2"
         >
           <Search size={18} />

@@ -90,13 +90,15 @@ export default async function SubsidyDetailPage({
         <h2 className="text-sm font-semibold text-[#0F172A] mb-3">자격 요건</h2>
         <div className="space-y-2 text-sm">
           <div className="flex gap-2">
-            <span className="text-[#94A3B8] w-16 shrink-0">사업자</span>
+            <span className="text-[#94A3B8] w-16 shrink-0">대상</span>
             <span className="text-[#0F172A]">{s.eligibility.businessTypes.join(", ")}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="text-[#94A3B8] w-16 shrink-0">업종</span>
-            <span className="text-[#0F172A]">{s.eligibility.industries.join(", ")}</span>
-          </div>
+          {s.eligibility.industries.length > 0 && (
+            <div className="flex gap-2">
+              <span className="text-[#94A3B8] w-16 shrink-0">업종</span>
+              <span className="text-[#0F172A]">{s.eligibility.industries.join(", ")}</span>
+            </div>
+          )}
           <div className="flex gap-2">
             <span className="text-[#94A3B8] w-16 shrink-0">지역</span>
             <span className="text-[#0F172A]">{s.eligibility.regions.join(", ")}</span>

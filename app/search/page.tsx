@@ -25,7 +25,8 @@ function SearchPage() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"match" | "deadline" | "amount">("match");
 
-  const hasProfile = businessType && industry && region;
+  const isPersonal = businessType === "개인";
+  const hasProfile = businessType && (isPersonal || industry) && region;
 
   const results = useMemo(() => {
     if (query.trim()) {
@@ -35,11 +36,11 @@ function SearchPage() {
     if (hasProfile) {
       const profile: UserProfile = {
         businessType,
-        industry,
+        industry: isPersonal ? "" : industry,
         region,
         businessAge: 2,
         employeeCount: 3,
-        specialTags: [],
+        specialTags: isPersonal ? ["청년"] : [],
       };
       return getMatchedSubsidies(profile);
     }
@@ -82,7 +83,7 @@ function SearchPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="text-xs text-[#64748B]">
           {hasProfile ? (
-            <span>{businessType} · {industry} · {region} 기준</span>
+            <span>{businessType}{industry ? ` · ${industry}` : ""} · {region} 기준</span>
           ) : query ? (
             <span>&quot;{query}&quot; 검색 결과</span>
           ) : (
