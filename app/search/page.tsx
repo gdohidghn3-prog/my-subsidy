@@ -33,6 +33,7 @@ function SearchPage() {
 
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"match" | "deadline">("match");
+  const [typeFilter, setTypeFilter] = useState<Set<string>>(new Set());
 
   const isPersonal = businessType === "개인";
   const hasProfile = businessType && (isPersonal || industry) && region;
@@ -71,18 +72,45 @@ function SearchPage() {
     return items;
   }, [results, sortBy]);
 
-  // 카테고리(supportType)별 그룹화
+  // 유형별 개수 (필터 칩 표시용)
+  const typeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of sorted) {
+      const type = r.subsidy.supportType;
+      counts[type] = (counts[type] || 0) + 1;
+    }
+    return counts;
+  }, [sorted]);
+
+  const allTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
+
+  // 필터 적용
+  const filtered = useMemo(() => {
+    if (typeFilter.size === 0) return sorted;
+    return sorted.filter((r) => typeFilter.has(r.subsidy.supportType));
+  }, [sorted, typeFilter]);
+
+  // 카테고리별 그룹화
   const grouped = useMemo(() => {
     const groups: Record<string, MatchResult[]> = {};
-    for (const r of sorted) {
+    for (const r of filtered) {
       const type = r.subsidy.supportType;
       if (!groups[type]) groups[type] = [];
       groups[type].push(r);
     }
     return groups;
-  }, [sorted]);
+  }, [filtered]);
 
   const groupKeys = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
+
+  const toggleTypeFilter = (type: string) => {
+    setTypeFilter((prev) => {
+      if (type === "__all__") return new Set();
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type); else next.add(type);
+      return next;
+    });
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 pb-16">
@@ -115,7 +143,7 @@ function SearchPage() {
           ) : (
             <span>전체 지원금</span>
           )}
-          <span className="ml-2 font-medium text-[#2563EB]">{sorted.length}건</span>
+          <span className="ml-2 font-medium text-[#2563EB]">{filtered.length}건</span>
         </div>
         <div className="flex gap-1">
           {(["match", "deadline"] as const).map((s) => (
@@ -132,8 +160,37 @@ function SearchPage() {
         </div>
       </div>
 
+      {/* 유형 필터 칩 */}
+      {allTypes.length > 1 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-3 mb-1">
+          <button
+            onClick={() => toggleTypeFilter("__all__")}
+            className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+              typeFilter.size === 0 ? "bg-[#2563EB] text-white" : "bg-white border border-[#E2E8F0] text-[#64748B]"
+            }`}
+          >
+            전체 ({sorted.length})
+          </button>
+          {allTypes.map((type) => {
+            const info = TYPE_INFO[type] || { label: type, emoji: "📋" };
+            const isActive = typeFilter.size === 0 || typeFilter.has(type);
+            return (
+              <button
+                key={type}
+                onClick={() => toggleTypeFilter(type)}
+                className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+                  isActive ? "bg-[#2563EB] text-white" : "bg-white border border-[#E2E8F0] text-[#64748B]"
+                }`}
+              >
+                {info.emoji} {info.label.split(" ")[0]} ({typeCounts[type]})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* 카테고리별 결과 */}
-      {sorted.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="text-center py-12 text-[#94A3B8]">
           매칭되는 지원금이 없습니다.
         </div>
