@@ -6,7 +6,10 @@ import Disclaimer from "@/components/Disclaimer";
 
 const noto = Noto_Sans_KR({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://my-subsidy-beta.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     default: "내지원금 — 나에게 맞는 정부 지원금 자동 매칭",
     template: "%s | 내지원금",
@@ -17,7 +20,13 @@ export const metadata: Metadata = {
     title: "내지원금 — 나에게 맞는 정부 지원금 자동 매칭",
     description: "사업자 유형, 업종, 지역만 입력하면 받을 수 있는 정부 지원금을 자동으로 찾아드립니다.",
     type: "website",
+    url: BASE_URL,
     locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary",
+    title: "내지원금 — 나에게 맞는 정부 지원금 자동 매칭",
+    description: "사업자 유형, 업종, 지역만 입력하면 받을 수 있는 정부 지원금을 자동으로 찾아드립니다.",
   },
 };
 
