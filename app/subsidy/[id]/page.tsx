@@ -1,12 +1,30 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getAllSubsidies, getSubsidyByIdAsync, getDday } from "@/lib/subsidies";
+import { getAllSubsidiesAsync, getSubsidyByIdAsync, getDday, toJsonLd } from "@/lib/subsidies";
 import { formatKoreanDate } from "@/lib/format";
 import { ArrowLeft, Building2, Calendar, Banknote, Phone, ExternalLink, Search } from "lucide-react";
 
-export function generateStaticParams() {
-  return getAllSubsidies().map((s) => ({ id: s.id }));
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const all = await getAllSubsidiesAsync();
+    const seen = new Set<string>();
+    const params: { id: string }[] = [];
+    for (const s of all) {
+      if (typeof s.id !== "string") continue;
+      const id = s.id.trim();
+      if (!id) continue;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      params.push({ id });
+    }
+    return params;
+  } catch (e) {
+    console.error("[generateStaticParams] getAllSubsidiesAsync failed:", e);
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -43,6 +61,15 @@ export default async function SubsidyDetailPage({
 
   return (
     <div className="max-w-2xl mx-auto px-4 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(toJsonLd(s))
+            .replace(/</g, "\\u003c")
+            .replace(/>/g, "\\u003e")
+            .replace(/&/g, "\\u0026"),
+        }}
+      />
       <header className="pt-6 pb-4 flex items-center gap-3">
         <Link href="/search" className="text-[#64748B] hover:text-[#2563EB]">
           <ArrowLeft size={20} />

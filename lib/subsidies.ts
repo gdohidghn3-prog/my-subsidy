@@ -10,6 +10,29 @@ export function isValidDateString(d: string | undefined | null): d is string {
   return typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
 }
 
+// ─── JSON-LD 구조화 데이터 ───────────────────────────────────
+// sitemap.ts 와 동일한 베이스 URL 표현을 유지해야 검색엔진 정합성이 깨지지 않는다.
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://my-subsidy-beta.vercel.app";
+
+export function toJsonLd(subsidy: Subsidy): Record<string, unknown> {
+  const data: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "GovernmentService",
+    name: subsidy.title,
+    description: subsidy.supportDetails,
+    provider: {
+      "@type": "GovernmentOrganization",
+      name: subsidy.organization,
+    },
+    areaServed: subsidy.eligibility.regions,
+    url: `${BASE_URL}/subsidy/${encodeURIComponent(subsidy.id)}`,
+  };
+  if (isValidDateString(subsidy.endDate)) {
+    data.validThrough = subsidy.endDate;
+  }
+  return data;
+}
+
 // ─── 샘플 데이터 (실제 존재하는 지원사업 기반) ────────────────
 
 const staticSubsidies: Subsidy[] = [
