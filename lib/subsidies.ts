@@ -1,6 +1,15 @@
 import type { Subsidy, UserProfile, MatchResult } from "@/types/subsidy";
 import { crawlAllSubsidies } from "./crawlers";
 
+// ─── 날짜 안전 헬퍼 ──────────────────────────────────────────
+// 크롤링 실패 시 startDate/endDate 가 빈 문자열로 떨어지는 케이스가 있다.
+// 빈 문자열은 문자열 비교에서 어떤 ISO 날짜보다도 "작다"로 평가되므로,
+// 필터 로직에 그대로 흘려보내면 "지나간 지원금" 처럼 잘못 분류되거나
+// 정렬이 깨질 위험이 있다. 모든 날짜 비교 진입점에서 이 함수로 게이팅한다.
+export function isValidDateString(d: string | undefined | null): d is string {
+  return typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
+}
+
 // ─── 샘플 데이터 (실제 존재하는 지원사업 기반) ────────────────
 
 const staticSubsidies: Subsidy[] = [
@@ -470,7 +479,13 @@ export async function getAllSubsidiesAsync(): Promise<Subsidy[]> {
 export async function getActiveSubsidiesAsync(): Promise<Subsidy[]> {
   const all = await getAllSubsidiesAsync();
   const today = new Date().toISOString().slice(0, 10);
-  return all.filter((s) => s.startDate <= today && s.endDate >= today);
+  return all.filter(
+    (s) =>
+      isValidDateString(s.startDate) &&
+      isValidDateString(s.endDate) &&
+      s.startDate <= today &&
+      s.endDate >= today,
+  );
 }
 
 export async function getDeadlineSubsidiesAsync(days: number = 30): Promise<Subsidy[]> {
@@ -481,7 +496,12 @@ export async function getDeadlineSubsidiesAsync(days: number = 30): Promise<Subs
     .slice(0, 10);
   const todayStr = today.toISOString().slice(0, 10);
   return all
-    .filter((s) => s.endDate >= todayStr && s.endDate <= limit)
+    .filter(
+      (s) =>
+        isValidDateString(s.endDate) &&
+        s.endDate >= todayStr &&
+        s.endDate <= limit,
+    )
     .sort((a, b) => a.endDate.localeCompare(b.endDate));
 }
 
@@ -513,7 +533,13 @@ export async function getSubsidyByIdAsync(id: string): Promise<Subsidy | undefin
 
 export function getActiveSubsidies(): Subsidy[] {
   const today = new Date().toISOString().slice(0, 10);
-  return staticSubsidies.filter((s) => s.startDate <= today && s.endDate >= today);
+  return staticSubsidies.filter(
+    (s) =>
+      isValidDateString(s.startDate) &&
+      isValidDateString(s.endDate) &&
+      s.startDate <= today &&
+      s.endDate >= today,
+  );
 }
 
 export function getDeadlineSubsidies(days: number = 7): Subsidy[] {
@@ -524,11 +550,19 @@ export function getDeadlineSubsidies(days: number = 7): Subsidy[] {
   const todayStr = today.toISOString().slice(0, 10);
 
   return staticSubsidies
-    .filter((s) => s.endDate >= todayStr && s.endDate <= limit)
+    .filter(
+      (s) =>
+        isValidDateString(s.endDate) &&
+        s.endDate >= todayStr &&
+        s.endDate <= limit,
+    )
     .sort((a, b) => a.endDate.localeCompare(b.endDate));
 }
 
 export function getDday(endDate: string): number {
+  // 빈 문자열·잘못된 형식 → NaN 반환. 호출처는 Number.isFinite 로 가드하거나
+  // 음수/NaN 케이스에서 D-day 표시를 숨겨야 한다.
+  if (!isValidDateString(endDate)) return NaN;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const end = new Date(endDate);

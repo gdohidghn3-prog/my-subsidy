@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAllSubsidies, getSubsidyByIdAsync, getDday } from "@/lib/subsidies";
+import { formatKoreanDate } from "@/lib/format";
 import { ArrowLeft, Building2, Calendar, Banknote, Phone, ExternalLink, Search } from "lucide-react";
 
 export function generateStaticParams() {
@@ -33,8 +34,12 @@ export default async function SubsidyDetailPage({
   if (!s) notFound();
 
   const dday = getDday(s.endDate);
-  const isUrgent = dday <= 7 && dday >= 0;
-  const isExpired = dday < 0;
+  const hasDday = Number.isFinite(dday);
+  const isUrgent = hasDday && dday <= 7 && dday >= 0;
+  const isExpired = hasDday && dday < 0;
+  const startLabel = formatKoreanDate(s.startDate, "미정");
+  const endLabel = formatKoreanDate(s.endDate, "미정");
+  const announcementLabel = formatKoreanDate(s.announcementDate, "미정");
 
   return (
     <div className="max-w-2xl mx-auto px-4 pb-16">
@@ -49,10 +54,12 @@ export default async function SubsidyDetailPage({
       <div className="flex items-center gap-2 mb-4">
         {isExpired ? (
           <span className="text-sm font-bold text-[#94A3B8]">마감됨</span>
-        ) : (
+        ) : hasDday ? (
           <span className={`text-sm font-bold ${isUrgent ? "text-[#EF4444]" : "text-[#2563EB]"}`}>
             D-{dday}
           </span>
+        ) : (
+          <span className="text-sm font-bold text-[#94A3B8]">마감일 미정</span>
         )}
         <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#059669] text-white font-medium">
           {s.supportType}
@@ -125,13 +132,13 @@ export default async function SubsidyDetailPage({
           <div className="flex items-center gap-2">
             <Calendar size={14} className="text-[#94A3B8]" />
             <span className="text-[#64748B]">접수 기간</span>
-            <span className="text-[#0F172A] font-medium">{s.startDate} ~ {s.endDate}</span>
+            <span className="text-[#0F172A] font-medium">{startLabel} ~ {endLabel}</span>
           </div>
           {s.announcementDate && (
             <div className="flex items-center gap-2">
               <Calendar size={14} className="text-[#94A3B8]" />
               <span className="text-[#64748B]">결과 발표</span>
-              <span className="text-[#0F172A] font-medium">{s.announcementDate}</span>
+              <span className="text-[#0F172A] font-medium">{announcementLabel}</span>
             </div>
           )}
         </div>

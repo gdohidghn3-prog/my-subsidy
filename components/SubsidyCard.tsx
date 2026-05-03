@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Calendar, Building2, Banknote } from "lucide-react";
 import type { Subsidy } from "@/types/subsidy";
 import { getDday } from "@/lib/subsidies";
+import { formatKoreanDateShort } from "@/lib/format";
 
 const TYPE_COLORS: Record<string, string> = {
   "보조금": "#059669",
@@ -24,8 +25,10 @@ export default function SubsidyCard({
   index?: number;
 }) {
   const dday = getDday(subsidy.endDate);
-  const isUrgent = dday <= 7 && dday >= 0;
+  const hasDday = Number.isFinite(dday);
+  const isUrgent = hasDday && dday <= 7 && dday >= 0;
   const typeColor = TYPE_COLORS[subsidy.supportType] || "#64748B";
+  const endDateLabel = formatKoreanDateShort(subsidy.endDate);
 
   return (
     <motion.div
@@ -54,7 +57,7 @@ export default function SubsidyCard({
               {subsidy.supportType}
             </span>
           </div>
-          {dday >= 0 && (
+          {hasDday && dday >= 0 && (
             <span
               className={`text-xs font-bold ${
                 isUrgent ? "text-[#EF4444] animate-pulse" : "text-[#64748B]"
@@ -84,7 +87,7 @@ export default function SubsidyCard({
           </div>
           <div className="flex items-center gap-1 text-[11px] text-[#94A3B8]">
             <Calendar size={11} />
-            ~{subsidy.endDate}
+            ~{endDateLabel}
           </div>
         </div>
       </Link>
